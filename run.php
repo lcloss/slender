@@ -33,7 +33,7 @@ $content .= <<<SOC
 SOC;
 // printMsg("Criado o conteúdo");
 
-$template = new Template('index');
+$template = new Template('run.index');
 
 $data = array(
     'title' => 'Run',
