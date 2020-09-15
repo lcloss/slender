@@ -41,7 +41,7 @@ class Template {
         $this->_replaceFors();
 
         $this->_extractIfs();
-        $this->_replaceIfs();
+        // $this->_replaceIfs();
 
         $this->_replaceKeys();
         $this->_extractBlocks();
@@ -149,43 +149,68 @@ class Template {
         // $if_pattern = '/{% if ([\w\.]+) %}(.*?){% else %}(.*?){% endif %}/is';
         // See: https://stackoverflow.com/questions/26074070/matching-if-elseif-else-statement-with-regular-expression
         $if_pattern = '/{% if ([\w\.]+) %}(.*?)(?:{% else %}(.*?))?{% endif %}/is';
+        
         preg_match_all($if_pattern, $this->doc, $matches);
+        $count_if = 0;
 
         // Run over all occurrences
         foreach ($matches[0] as $k => $match) {
-            // Check for the entry (first key)
-            if (array_key_exists($matches[1][$k], $this->keys)) {
-                if ($this->_getKey($matches[1][$k])) {
-                    // Replace by the true
-                    $content = $matches[2][$k];
-                } else {
-                    // Replace by the false or empty
-                    $content = $matches[3][$k];
-                }
-                $this->_setIf($matches[1][$k], $content);
+            // echo "Vou substituir " . $match . "<br />\n";
+            // echo "Vou avaliar " . $matches[1][$k] . "<br />\n";
+            // echo "Se sim, então: " . $matches[2][$k] . "<br />\n";
+            // echo "Senão: " . $matches[3][$k] . "<br />\n";
+            // if (array_key_exists($matches[1][$k], $this->keys)) {
+            //     echo "Sim, existe.<br />\n";
+            // } else {
+            //     echo "Não, não existe.<br />\n";                
+            // }
 
-                // Replace this occurrence with the appropriate content
-                $this->doc = str_replace($match, $content, $this->doc);
-            } else {
-                $this->_setIf($matches[1][$k], $matches[3][$k]);
+            $count_if++;
+            echo $matches[1][$k] . "<br />\n";
+            $if_data = array(
+                $matches[2][$k],
+                $matches[3][$k]
+            );
+            // $this->_setIf($);
+            $this->doc = str_replace($match, "{{ " . $matches[1][$k] . " }}", $this->doc);
 
-                $this->doc = str_replace($match, $matches[3][$k], $this->doc);
-            }
+
+            // // Check for the entry (first key)
+            // if (array_key_exists($matches[1][$k], $this->keys)) {
+            //     if ($this->_getKey($matches[1][$k])) {
+            //         // Replace by the true
+            //         $content = $matches[2][$k];
+            //     } else {
+            //         // Replace by the false or empty
+            //         $content = $matches[3][$k];
+            //     }
+            //     $key_name = "if_" . $count_if . "_" . $k;
+            //     $this->_setIf($key_name, $content);
+            //     echo "setIf $key_name = $content" . "<br />\n";
+
+            //     // Replace this occurrence with the appropriate content
+            //     $this->doc = str_replace($match, "{{ " . $key_name . " }}", $this->doc);
+            // } else {
+            //     $key_name = "if_" . $count_if . "_" . $k;
+            //     $this->_setIf($key_name, $matches[2][$k]);
+            //     echo "setIf $key_name = " . $matches[2][$k] . "<br />\n";
+
+            //     // $this->doc = str_replace($match, $matches[3][$k], $this->doc);
+            //     $this->doc = str_replace($match, "{{ " . $key_name . " }}", $this->doc);
+            // }
         }
     }
 
     // Replace if entries
     private function _replaceIfs() {
         foreach ($this->ifs as $entry => $data) {
+            echo "Return $entry => $data<br />\n";
             $if_template = new Template();
             $if_template->_setKeys($this->keys);
 
-            if ( $this->_getKey($entry) ) {
-                $if_template->_setKey($entry, $data[0]);
-            } else {
-                $if_template->_setKey($entry, $data[1]);
-            }
-            $this->_setKey($entry, $if_template->run(true));
+            $if_template->_setKey($entry, $data);
+
+            $this->_setKey($entry, $if_template->_run(true));
         }
     }
     
@@ -225,7 +250,7 @@ class Template {
                     if ( array_key_exists($entry, $this->keys) ) {
                         $this->doc = str_replace($matches[0][$i], $this->keys[$entry], $this->doc);
                     } else {
-                        $this->doc = str_replace($matches[0][$i], NULL, $this->doc);
+                        // $this->doc = str_replace($matches[0][$i], NULL, $this->doc);
                     }
                 }
             }

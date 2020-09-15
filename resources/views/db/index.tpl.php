@@ -15,7 +15,7 @@ if (!defined('INSIDE')) {
             <select class="form-control" name="dbname" id="dbname">
                 <option value="">(Selecione)</option>
                 {% for databases %}
-                <option value="{{ databases.value }}" {% if "{{ databases.value }}" == "{{ dbname }}" %}selected="selected"{% endif %}>{{ databases.caption }}</option>
+                <option value="{{ databases.value }}" {% if tables.selected %}selected="selected"{% endif %}>{{ databases.caption }}</option>
                 {% endfor %}
             </select>
         </form>
@@ -26,8 +26,8 @@ if (!defined('INSIDE')) {
             <div class="table-item" data-toggle="collapse" data-target="#table-options-{{ tables.value }}" aria-expanded="false" aria-controls="table-options-{{ tables.value }}">+ {{ tables.value }}</div>
         </div>
         <div class="collapase" id="table-options-{{ tables.value }}" aria-labelledby="table-name-{{ tables.value }}" data-parent="#tables">
-        +- <a href="{{ table.link_structure }}">View structure</a><br />
-        +- <a href="{{ table.link_data }}">Select rows</a>
+        +- <a href="{{ tables.link_structure }}">View structure</a><br />
+        +- <a href="{{ tables.link_data }}">Select rows</a>
         </div>
         {% endfor %}
         </div>

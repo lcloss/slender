@@ -64,7 +64,8 @@ if (isset($_GET['dbname'])) {
             'value' => $tb_name[$key],
             'caption' => $tb_name[$key],
             'link_structure' => $dblink . "&tbname=" . $tb_name[$key],
-            'link_data' => $dblink . "&tbname=" . $tb_name[$key] . "&list=true"
+            'link_data' => $dblink . "&tbname=" . $tb_name[$key] . "&list=true",
+            'selected' => ($tb_name[$key] == $_GET['dbname'] ? true : false)
         );
         if (isset($_GET['tbname'])) {
             if ($_GET['tbname'] == $tb_name[$key]) {
