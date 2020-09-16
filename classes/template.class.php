@@ -45,7 +45,7 @@ class Template {
         $this->_replaceFors();
 
         $this->_extractIfs();
-        // $this->_replaceIfs();
+        $this->_replaceIfs();
 
         $this->_replaceKeys();
 
@@ -56,6 +56,19 @@ class Template {
 
     private function _setKey($key, $value) {
         $this->keys[$key] = $value;
+
+        if ( is_array($value) ) {
+            // Need to check if we have an array inside another array
+            foreach ( $value as $keyArr ) {
+                if ( is_array( $keyArr ) ) {
+                    foreach ( $keyArr as $v_key => $v_data ) {
+                        if ( is_array( $v_data ) ) {
+                            $this->_setKey($key . "." . $v_key, $v_data);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private function _setKeys($keys) {
@@ -144,6 +157,7 @@ class Template {
                             $for_template->_setKey($entry . '.' . $key, $value);
                         }
                     }
+                    // This replaceKeys is necessary to replace the for keys.
                     $for_template->_replaceKeys();
                     $block .= $for_template->_run(true);
                 }
@@ -156,122 +170,79 @@ class Template {
      * Ifs
      */
     private function _extractIfs() {
-        $this->_replaceKeys();
         debugPrint("extractIfs");
-        // $if_pattern = '/{% if ([\w\.]+) %}(.*?){% else %}(.*?)){% endif %}/is';
-        // $if_pattern = '/{% if ([\w\.]*) %}(.*?)(?:{% else %}(.*?))?{% endif %}/is';
         // See: https://stackoverflow.com/questions/26074070/matching-if-elseif-else-statement-with-regular-expression
-        // {\?if ([^{}]+)}(.*?)({\?elseif [^{}]+}.*?)*(?:{\?else}(.+?))?{\?endif}
-        //
-        // {\?if // match "{?if " literally
-        //     ([^{}]+)// capture the condition in group 0
-        //     }// match "}"
-        //     (.*?)// capture the content of the {if} branch in group 1
-        //     (// in group 2,...
-        //        {\?elseif //...capture "{?elseif "...
-        //        [^{}]+//...a condition...
-        //        }//..."}"...
-        //        .*?// and the content of the {elseif} branch...
-        //     )*//...as often as possible.
-        //     (?:// if possible,...
-        //        {\?else}//...match "{?else}"...
-        //        (.+?)//...and the content of the {else} branch.
-        //     )?
-        // {\?endif}// finally, match "{?endif}". 
-        // $if_pattern = '/{% if ([^{}]+) %}(.*?)({% elseif [^{}]+ %}.*?)*(?:{% else %}(.+?))?{% endif %}/is';
         // $if_pattern = '/{% if ([^{}]*) %}(.*?)({% elseif [^{}]* %}.*?)*(?:{% else %}(.*?))?{% endif %}/is';
+        // $if_pattern = '/{% if ([^{}]*) %}(.*?)(?:{% else %}(.*?))?{% endif %}/is';
+        $this->_replaceKeys();
         $if_pattern = '/{% if ([^{}]*) %}(.*?)(?:{% else %}(.*?))?{% endif %}/is';
         
         preg_match_all($if_pattern, $this->doc, $matches);
-        // var_dump($matches);
-        $count_if = 0;
 
         // Run over all occurrences
         foreach ($matches[0] as $k => $match) {
-            // debugPrint("Vou substituir " . $match);
-            // debugPrint("Vou avaliar " . $matches[1][$k]);
-            // debugPrint("Se sim, então: " . $matches[2][$k]);
-            // debugPrint("Senão: " . $matches[3][$k]);
-            // if (array_key_exists($matches[1][$k], $this->keys)) {
-            //     debugPrint("Sim, existe.");;
-            // } else {
-            //     debugPrint("Não, não existe.");;                
-            // }
-
-            $count_if++;
-            // debugPrint($count_if . "|" . $k . "|" . $matches[1][$k] . "|" . $matches[2][$k] . "|" . $matches[3][$k]);
             foreach($matches as $keyPart => $Valuepart) {
                 debugPrint("\$matches[" . $keyPart . "][\$k]: " . $matches[$keyPart][$k]);
             }
+
             // debugPrint($match);
             if ( empty($matches[1][$k]) ) {
                 $bResult = false;
             } else {
-                $evalCond = "\$bResult = (" . $matches[1][$k] . ");";
+                $cond_template = new Template();
+                $cond_template->_setData($matches[1][$k]);
+                $cond_template->_setKeys($this->keys);
+                $cond = $cond_template->_run(true);
+                $evalCond = "\$bResult = (" . $cond . ");";
+                debugPrint("Evaluationg COND:");
                 debugPrint($evalCond);
                 eval($evalCond);
             }
             if ( $bResult ) {
                 debugPrint("If condition TRUE");
-                debugPrint($matches[2][$k]);
+                $do_template = new Template();
+                $do_template->_setData($matches[2][$k]);
+                $do_template->_setKeys($this->keys);
+                $do = $do_template->_run(true);
+                debugPrint($do);
                 // If condition is TRUE
-                $this->doc = str_replace($match, $matches[2][$k], $this->doc);
+                // $this->doc = str_replace($match, $matches[2][$k], $this->doc);
+                $this->ifs[] = array(
+                    'block' => $match,
+                    'content' => $do
+                );
             } else {
                 if ( !empty($matches[4][$k]) ) {
                     debugPrint("Else condition TRUE");
-                    debugPrint($matches[4][$k]);
+                    $do_template = new Template();
+                    $do_template->_setData($matches[4][$k]);
+                    $do_template->_setKeys($this->keys);
+                    $do = $do_template->_run(true);
+                    debugPrint($do);
                     // Else condition is TRUE
-                    $this->doc = str_replace($match, $matches[4][$k], $this->doc);
+                    // $this->doc = str_replace($match, $do, $this->doc);
+                    $this->ifs[] = array(
+                        'block' => $match,
+                        'content' => $do
+                    );
                 } else {
                     debugPrint("If condition FALSE");
                     // None condition is TRUE
-                    $this->doc = str_replace($match, "", $this->doc);
+                    // $this->doc = str_replace($match, "", $this->doc);
+                    $this->ifs[] = array(
+                        'block' => $match,
+                        'content' => ""
+                    );
                 }
             }
-
-            // $if_data = array(
-            //     $matches[2][$k],
-            //     $matches[3][$k]
-            // );
-            // $this->_setIf($);
-            // $this->doc = str_replace($match, "{{ " . $matches[1][$k] . " }}", $this->doc);
-
-
-            // // Check for the entry (first key)
-            // if (array_key_exists($matches[1][$k], $this->keys)) {
-            //     if ($this->_getKey($matches[1][$k])) {
-            //         // Replace by the true
-            //         $content = $matches[2][$k];
-            //     } else {
-            //         // Replace by the false or empty
-            //         $content = $matches[3][$k];
-            //     }
-            //     $key_name = "if_" . $count_if . "_" . $k;
-            //     $this->_setIf($key_name, $content);
-            //     debugPrint("setIf $key_name = $content");
-
-            //     // Replace this occurrence with the appropriate content
-            //     $this->doc = str_replace($match, "{{ " . $key_name . " }}", $this->doc);
-            // } else {
-            //     $key_name = "if_" . $count_if . "_" . $k;
-            //     $this->_setIf($key_name, $matches[2][$k]);
-            //     debugPrint("setIf $key_name = " . $matches[2][$k]);
-
-            //     // $this->doc = str_replace($match, $matches[3][$k], $this->doc);
-            //     $this->doc = str_replace($match, "{{ " . $key_name . " }}", $this->doc);
-            // }
         }
     }
 
     // Replace if entries
     private function _replaceIfs() {
         debugPrint("replaceIfs");
-        foreach ($this->ifs as $entry => $data) {
-            debugPrint("Return $entry => $data");;
-            $if_template = new Template();
-            $if_template->_setKeys($this->keys);
-            $if_template->_setKey($entry, $data);
-            $this->_setKey($entry, $if_template->_run(true));
+        foreach ($this->ifs as $data) {
+            $this->doc = str_replace($data['block'], $data['content'], $this->doc);
         }
     }
     
@@ -306,6 +277,7 @@ class Template {
         $entry_pattern = '/{{ ([\w\.]+) }}/';
 
         foreach($this->keys as $key => $value) {
+            debugPrint("   Replacing $key...");
             preg_match_all($entry_pattern, $this->doc, $matches);
 
             if ( count($matches) > 0 ) {
@@ -318,6 +290,8 @@ class Template {
                 }
             }
         }
+        debugPrint("   Final:");
+        debugPrint($this->doc);
     }
 
     /**

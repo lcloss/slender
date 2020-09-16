@@ -3,7 +3,7 @@
 
 define('INSIDE', true);
 define('CRLF', "<br />\n");
-define('DEBUG', true);
+define('DEBUG', false);
 
 include 'helpers/functions.php';
 include 'classes/template.class.php';

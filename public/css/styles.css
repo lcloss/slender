@@ -10,10 +10,30 @@ textarea.php-code {
     font-family: 'Courier New';
     font-size: 9pt;
 }
+a.table-item:hover {
+    text-decoration: none;
+}
+a.table-item-o {
+    margin: 0px;
+    margin-left: 20px;
+}
+a.table-item-o:hover {
+    text-decoration: none;
+}
+div.table-operations {
+    margin-bottom: 10px;
+}
 div.table-item {
     cursor: pointer;
     color: blue;
 }
 .text-bold {
     font-weight: bold;
+}
+span.table-item {
+    width: 100%;
+    clear: both;
+}
+span.table-item-op {
+    margin-left: 20px;
 }
