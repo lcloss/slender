@@ -16,6 +16,14 @@ if (!function_exists('printMsg')) {
         echo "<p style='font-family: Courier;color: red;'>$msg</p>";
     }
 }
+
+if (!function_exists('debugPrint')) {
+    function debugPrint($msg) {
+        if (DEBUG == true) {
+            echo $msg . "\n";
+        }
+    }
+}
 /**
  * Read a template file from /resources/views folder.
  * Convert all points to DIRECTORY_SEPARATOR character.

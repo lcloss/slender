@@ -14,3 +14,6 @@ div.table-item {
     cursor: pointer;
     color: blue;
 }
+.text-bold {
+    font-weight: bold;
+}

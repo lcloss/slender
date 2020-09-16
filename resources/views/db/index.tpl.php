@@ -15,23 +15,28 @@ if (!defined('INSIDE')) {
             <select class="form-control" name="dbname" id="dbname">
                 <option value="">(Selecione)</option>
                 {% for databases %}
-                <option value="{{ databases.value }}" {% if tables.selected %}selected="selected"{% endif %}>{{ databases.caption }}</option>
+                <option value="{{ databases.value }}"{% if {{ databases.selected }} %} selected="selected"{% endif %}>{{ databases.caption }}</option>
                 {% endfor %}
             </select>
         </form>
+        {% if "{{ dbname }}" != "" %}
         <h3 class="item-title">Tables</h3>
+        {% endif %}
         <div id="tables">
-        {% for tables %}
-        <div id="table-name-{{ tables.value }}">
-            <div class="table-item" data-toggle="collapse" data-target="#table-options-{{ tables.value }}" aria-expanded="false" aria-controls="table-options-{{ tables.value }}">+ {{ tables.value }}</div>
+            {% for tables %}
+            <div>
+                <a class="table-item{% if {{ tables.selected }} %} text-bold{% endif %}" data-toggle="collapse" href="#collapseExample-{{ tables.value }}" aria-expanded="false" aria-controls="collapseExample-{{ tables.value }}">
+                    + {{ tables.value }}
+                </a>
+            </div>
+            <div class="collapse" id="collapseExample-{{ tables.value }}">
+                <div class="">
+                +- <a href="{{ tables.link_structure }}">View structure</a><br />
+                +- <a href="{{ tables.link_data }}">Select rows</a>
+                </div>
+            </div>            
+            {% endfor %}
         </div>
-        <div class="collapase" id="table-options-{{ tables.value }}" aria-labelledby="table-name-{{ tables.value }}" data-parent="#tables">
-        +- <a href="{{ tables.link_structure }}">View structure</a><br />
-        +- <a href="{{ tables.link_data }}">Select rows</a>
-        </div>
-        {% endfor %}
-        </div>
-        </ul>
     </div>
     <div class="col-8"></div>
 </div>

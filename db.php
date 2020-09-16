@@ -33,7 +33,8 @@ $arr_databases = [];
 foreach($db_list as $db_name) {
     $arr_databases[] = array(
         'value' => $db_name['Database'],
-        'caption' => $db_name['Database']
+        'caption' => $db_name['Database'],
+        'selected' => ($db_name['Database'] == (isset($_GET['dbname']) ? $_GET['dbname'] : '') ? true : false)
     );
     if (isset($_GET['dbname'])) {
         if ($_GET['dbname'] == $db_name['Database']) {
@@ -65,7 +66,7 @@ if (isset($_GET['dbname'])) {
             'caption' => $tb_name[$key],
             'link_structure' => $dblink . "&tbname=" . $tb_name[$key],
             'link_data' => $dblink . "&tbname=" . $tb_name[$key] . "&list=true",
-            'selected' => ($tb_name[$key] == $_GET['dbname'] ? true : false)
+            'selected' => ($tb_name[$key] == (isset($_GET['tbname']) ? $_GET['tbname'] : '') ? true : false)
         );
         if (isset($_GET['tbname'])) {
             if ($_GET['tbname'] == $tb_name[$key]) {
