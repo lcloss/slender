@@ -18,8 +18,8 @@ if (!function_exists('printMsg')) {
 }
 
 if (!function_exists('debugPrint')) {
-    function debugPrint($msg) {
-        if (DEBUG == true) {
+    function debugPrint($msg, $level = 5) {
+        if (DEBUG == true && DEBUG_LEVEL >= $level) {
             echo $msg . "\n";
         }
     }

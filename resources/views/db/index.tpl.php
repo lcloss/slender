@@ -15,27 +15,27 @@ if (!defined('INSIDE')) {
             <select class="form-control" name="dbname" id="dbname">
                 <option value="">(Selecione)</option>
                 {% for databases %}
-                <option value="{{ databases.value }}"{% if {{ databases.selected }} %} selected="selected"{% endif %}>{{ databases.caption }}</option>
+                <option value="{{ databases.value }}"{% if $databases.selected %} selected="selected"{% endif %}>{{ databases.caption }}</option>
                 {% endfor %}
             </select>
         </form>
-        {% if "{{ dbname }}" != "" %}
+        {% if $dbname != "" %}
         <h3 class="item-title">Tables</h3>
-        {% endif %}
         <div class="tables-container" id="tables">
             {% for tables %}
             <div>
-                <a class="table-item{% if {{ tables.selected }} %}  text-bold{% endif %}" data-toggle="collapse" href="#collapseExample-{{ tables.value }}" {% if {{ tables.selected }} %}aria-expanded="true"{% else %}aria-expanded="false"{% endif %} aria-controls="collapseExample-{{ tables.value }}"><i class="fa fa-database" aria-hidden="true"></i> {{ tables.value }}</a>
+                <a class="table-item{% if $tables.selected %}  text-bold{% endif %}" data-toggle="collapse" href="#collapseExample-{{ tables.value }}" {% if $tables.selected %}aria-expanded="true"{% else %}aria-expanded="false"{% endif %} aria-controls="collapseExample-{{ tables.value }}"><i class="fa fa-database" aria-hidden="true"></i> {{ tables.value }}</a>
             </div>
-            <div class="collapse list-group table-operations{% if {{ tables.selected }} %} show{% endif %}" id="collapseExample-{{ tables.value }}">
+            <div class="collapse list-group table-operations{% if $tables.selected %} show{% endif %}" id="collapseExample-{{ tables.value }}">
                 <a class="table-item-o" href="{{ tables.link_structure }}"><i class="fa fa-cogs" aria-hidden="true"></i> View structure</a>
                 <a class="table-item-o" href="{{ tables.link_data }}"><i class="fa fa-table" aria-hidden="true"></i> Select rows</a>
             </div>            
             {% endfor %}
         </div>
+        {% endif %}
     </div>
     <div class="col-8">
-    {% if "{{ op }}" == "struct" %}
+    {% if $op == "struct" %}
     <h3>Table: <strong>{{ tbname }}</strong></h3>
     <h4>Structure</h4>
     <div class="overflow-auto">
@@ -66,7 +66,7 @@ if (!defined('INSIDE')) {
     </div>
     {% endif %}
 
-    {% if "{{ op }}" == "list" %}
+    {% if $op == "list" %}
     <h3>Table: <strong>{{ tbname }}</strong></h3>
     <h4>Data</h4>
     <h5>{{ tbindex }}</h5>
@@ -99,7 +99,12 @@ if (!defined('INSIDE')) {
 <script>
 $( '#dbname' ).change(function(e) {
     // alert( this.value );
-    window.location = 'db.php?dbname=' + this.value;
+    if ( this.value == '' ) {
+        window.location = 'db.php';
+    } else {
+        window.location = 'db.php?dbname=' + this.value;
+    }
+    
 });
 function sayHello(msg) {
     alert(msg);
