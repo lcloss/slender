@@ -1,11 +1,7 @@
 <?php
-include 'config/bootstrap.php';
+use App\App;
 
-$template = new Template('index');
-$data = array(
-    'title' => 'Home',
-    'content' => ''
-);
-$template->display($data);
+require_once('..' . DIRECTORY_SEPARATOR . 'bootstrap' . DIRECTORY_SEPARATOR . 'app.php');
 
-?>
+$app = App::getInstance();
+$app->run();
