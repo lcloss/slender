@@ -2,11 +2,12 @@
     "name": "lcloss/minimum",
     "description": "A simple framework composed by some packages",
     "type": "project",
+    "minimum-stability": "stable",
     "require": {
-        "lcloss/view": ">=0.0.1",
-        "lcloss/route": "dev-main",
-        "lcloss/db": ">=0.0.2",
-        "lcloss/env": ">=0.0.1"
+        "lcloss/view": "dev-release/0.0.1",
+        "lcloss/route": "dev-release/0.0.1",
+        "lcloss/db": "dev-release/0.0.1",
+        "lcloss/env": "dev-release/0.0.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.4"
@@ -17,6 +18,5 @@
             "name": "Luciano Closs",
             "email": "luciano@devcorner.io"
         }
-    ],
-    "minimum-stability": "stable"
+    ]
 }
