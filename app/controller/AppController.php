@@ -1,6 +1,8 @@
 <?php
 namespace App\Controller;
 
+use App\Controller;
+
 class AppController extends Controller
 {
     public function __construct()

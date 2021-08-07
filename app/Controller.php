@@ -1,5 +1,5 @@
 <?php
-namespace App\Controller;
+namespace App;
 
 use App\App;
 use LCloss\View\View;
